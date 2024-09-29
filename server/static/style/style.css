@@ -1,0 +1,153 @@
+.box_titre {
+    text-align: center;
+}
+
+.card-img-top {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+.card-body {
+    text-align: center;
+}
+
+.card-small {
+    max-width: 150px; /* Ajustez cette valeur pour la taille souhaitée */
+    margin: 0 auto;
+}
+
+.row-cols-md-5 > .col {
+    display: flex;
+    justify-content: center;
+}
+
+.g-2 {
+    gap: 0.5rem; /* Réduit l'espace entre les cartes */
+}
+
+.ecole {
+    display: table-cell;
+}
+
+.incantation{
+    display: table-cell;
+}
+
+.portee{
+    display: table-cell;
+}
+
+.vsm{
+    display: table-cell;
+}
+
+.concentration{
+    display: table-cell;
+}
+
+.rituel{
+    display: none;
+}
+
+.description{
+    display: none;
+}
+
+.page{
+    display: none;
+}
+
+.btn-barde {
+    background-color: #292d2f; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-barde:hover {
+    background-color: #292d2f; /* Couleur de fond au survol */
+}
+
+.btn-clerc {
+    background-color: #54c8f3; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-clerc:hover {
+    background-color: #429ec0; /* Couleur de fond au survol */
+}
+
+.btn-druide {
+    background-color: #8bcc9b; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-druide:hover {
+    background-color: #689974; /* Couleur de fond au survol */
+}
+
+.btn-ensorceleur {
+    background-color: #f79741; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-ensorceleur:hover {
+    background-color: #c37733; /* Couleur de fond au survol */
+}
+
+.btn-magicien {
+    background-color: #d01f26; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-magicien:hover {
+    background-color: #831318; /* Couleur de fond au survol */
+}
+
+.btn-paladin {
+    background-color: #2a68b3; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-paladin:hover {
+    background-color: #1e4a80; /* Couleur de fond au survol */
+}
+
+.btn-rodeur {
+    background-color: #2e6738; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-rodeur:hover {
+    background-color: #17341c; /* Couleur de fond au survol */
+}
+
+.btn-occultiste {
+    background-color: #714e9f; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-occultiste:hover {
+    background-color: #4c346c; /* Couleur de fond au survol */
+}
+
+.btn-multiclasse {
+    background-color: #000001; /* Couleur de fond personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+}
+
+.btn-multiclasse:hover {
+    background-color: #000000; /* Couleur de fond au survol */
+}
+
+.footer {
+    text-align: center;
+}
