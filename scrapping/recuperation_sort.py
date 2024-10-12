@@ -3,6 +3,24 @@ import requests #Permet de faire des requêtes web
 from bs4 import BeautifulSoup #Permet de rechercher des éléments dans un texte web
 import json #Création de fichier json
 from pdfminer.high_level import extract_text
+import os
+
+def recuper_chemin_absolue():
+    """Fonction qui permet de récupérer le chemin absolue pour le système. Suivant le OS le répertoire courant n'est pas le même.
+    La fonction regarde si on est dans le répertoire server. Si oui ne fait rien sinon le rajoute
+
+    Returns:
+        str: Chemin absolue des fichiers
+    """
+    chemin = os.getcwd()
+    try :
+        chemin_relatif = chemin[len(chemin)-7:]
+        if chemin_relatif != "/server" :
+            chemin += "/server"
+    except :
+        chemin += "/server"
+    
+    return chemin
 
 def extraction_nom_page_sort(pdf_path):
     """Fonction qui permet de extraire le nom ainsi que le numéros de page des cartes de sort
@@ -13,6 +31,7 @@ def extraction_nom_page_sort(pdf_path):
     Returns:
         dict: le dictionnaire des nom des sorts ainsi que de numeros de page
     """
+    pdf_path = recuper_chemin_absolue() + "/"+ pdf_path
     #Extraction du texte et séparation en différente page
     text = extract_text(pdf_path)
     pages = text.split('\f')
@@ -62,7 +81,7 @@ def exctaction_nom_sort_all():
 
     #Permet de faire tout les appels poour récupérer chaque dictionaire de chaque type de classe
     for classe in liste_classe:
-        sort[classe] = extraction_nom_page_sort("server/data/sort/"+classe+".pdf")
+        sort[classe] = extraction_nom_page_sort(recuper_chemin_absolue()+"/data/sort/"+classe+".pdf")
     
     #Envoie du dictionaire complet
     return sort
@@ -309,7 +328,7 @@ def scrapping_sort():
 
             spells.append(spell) #Ajout du dictionaire
 
-    with open('server/data/spells.json', 'w', encoding='utf-8') as f: #Ouverture/Création du fichier json "spells.json"
+    with open(recuper_chemin_absolue + '/data/spells.json', 'w', encoding='utf-8') as f: #Ouverture/Création du fichier json "spells.json"
         json.dump(spells, f, ensure_ascii=False, indent=4) #Ajout/Modification des sorts
 
-scrapping_sort()
+#scrapping_sort()

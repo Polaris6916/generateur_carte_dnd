@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, send_file, after_this_request
 from werkzeug.utils import send_from_directory
 import os
 from dotenv import load_dotenv
-from importer_expoter_sort import selection_sort, generer_pdf
+from importer_exporter_sort import selection_sort, generer_pdf, recuper_chemin_absolue
 from datetime import datetime
 import threading
 
@@ -26,7 +26,8 @@ def sort(type):
 
 @app.route("/pdf.html/<string:classe>/<string:pages>", methods=['GET'])
 def pdf(classe, pages):
-    id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    now = datetime.now()
+    id = now.strftime("%Y%m%d%H%M%S%f")
     generer_pdf(classe, pages, id)
     chemin = f"temp/{classe}_{id}.pdf"
 
@@ -34,7 +35,7 @@ def pdf(classe, pages):
     def remove_file(response):
         def delayed_remove():
             try:
-                os.remove("server/"+chemin)
+                os.remove(recuper_chemin_absolue()+"/"+chemin)
                 print(f"Fichier supprimé : {chemin}")
             except Exception as e:
                 print(f"Erreur lors de la suppression du fichier : {e}")
