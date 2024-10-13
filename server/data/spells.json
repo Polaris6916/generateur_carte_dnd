@@ -7925,7 +7925,7 @@
             null
         ],
         "magicien": [
-            false,
+            true,
             [
                 97
             ]
@@ -8335,7 +8335,7 @@
         "rituel": false,
         "description": "La cible doit réussir un JdS de Sag. ou être prise d'une intense crise de fou rire, tomber à terre et être incapable d'agir.",
         "barde": [
-            false,
+            true,
             [
                 46
             ]
@@ -8353,7 +8353,7 @@
             null
         ],
         "magicien": [
-            false,
+            true,
             [
                 103
             ]
@@ -11019,7 +11019,7 @@
         "rituel": false,
         "description": "Fait qu'un objet émette une lumière vive sur 6 m et une lumière faible sur 6 m supplémentaires.",
         "barde": [
-            false,
+            true,
             [
                 73
             ]

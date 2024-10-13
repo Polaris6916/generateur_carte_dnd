@@ -152,11 +152,14 @@ def recuper_chemin_absolue():
         str: Chemin absolue des fichiers
     """
     chemin = os.getcwd()
-    try :
+    if len(chemin) >=7:
         chemin_relatif = chemin[len(chemin)-7:]
         if chemin_relatif != "/server" :
             chemin += "/server"
-    except :
+    else :
         chemin += "/server"
+    
+    if not os.path.exists(chemin + "/temp"):
+        os.makedirs(chemin + "/temp")
     
     return chemin
