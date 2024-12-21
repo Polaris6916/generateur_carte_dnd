@@ -17,6 +17,42 @@
     margin: 0 auto;
 }
 
+#card_barde {
+    display: none;
+}
+
+#card_clerc {
+    display: none;
+}
+
+#card_druide {
+    display: none;
+}
+
+#card_ensorceleur {
+    display: none;
+}
+
+#card_magicien {
+    display: none;
+}
+
+#card_occultiste {
+    display: none;
+}
+
+#card_paladin {
+    display: none;
+}
+
+#card_rodeur {
+    display: none;
+}
+
+#card_multiclasse {
+    display: block;
+}
+
 .row-cols-md-5 > .col {
     display: flex;
     justify-content: center;

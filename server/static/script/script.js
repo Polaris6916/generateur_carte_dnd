@@ -1,285 +1,338 @@
+//Varirable global
 let sort_json = [];
+var classe_selectionner = "multiclasse";
+let selectedRows = [];
 
-//Fonction permettant de appliqué le critère de tris de l'utilisateur
-function display_tableaux(type) { 
-    // Récupère l'état de la case à cocher associée au type donné
-    const check_box = document.getElementById("check_" + type).checked;
+//Fonction qui permet d'afficher qu'elle carte est sélectionner
+function card_selection(classe){    
+    var element = document.getElementById('card_'+ classe_selectionner); //On récupère la carte actuellement sélectionner
+    element.style.display = "none"; //On fait disparaitre la bulle au-dessus d'elle
 
-    // Convertit la collection HTML des éléments avec la classe spécifiée en un tableau
-    const display_element_array = Array.from(document.getElementsByClassName(type));
+    classe_selectionner = classe; //On définis la nouvelle classe sélectionné
+    var element = document.getElementById('card_'+ classe_selectionner); //On récupère sont id
+    element.style.display = "block"; //On affiche l'indicateur 
 
-    // Parcourt chaque élément du tableau
-    display_element_array.forEach(element => {
-        // Si la case à cocher est cochée, affiche l'élément en tant que cellule de tableau
-        if (check_box) {
-            element.style.display = "table-cell";
-        } else { // Sinon, cache l'élément
-            element.style.display = "none";
-        }
+}
+
+//Fonction pour le tableau
+async function tableau_selector(classe) {
+    card_selection(classe); // Permet de modifier la petite icône au-dessus de la carte sélectionnée
+    selectedRows = []; //Permet d'enlever les éléments checker
+
+    // Si le tableau n'est pas initialisé, initialiser
+    if (!$('#table_bootstrap').hasClass('initialized')) {
+        $('#table_bootstrap').bootstrapTable({
+            pagination: true,                // Activer la pagination
+            paginationVAlign: 'both',        // Aligner la pagination en haut et en bas
+            pageSize: 20,                    // Taille de page (nombre de lignes par page)
+            pageList: [10, 20, 50, 100, 200, "All"],
+            sortable: true,                  // Activer le tri
+            columns: [{
+                field: 'state',
+                checkbox: true,              // Champ pour la case à cocher
+                formatter: (value, row, index) => {
+                    // Si la ligne est dans la liste des éléments sélectionnés, cochez la case
+                    return selectedRows.includes(row.id) ? { checked: true } : { checked: false };
+                }
+            }, {
+                field: 'name',               // Nom de la colonne
+                visible: true                // Rendre cette colonne visible
+            }, {
+                field: 'level',
+                visible: true                 // Rendre cette colonne visible
+            }, {
+                field: 'school',
+                visible: true                 // Rendre cette colonne visible
+            }, {
+                field: 'casting_time',
+                visible: false,                // Masquer cette colonne par défaut
+                sortable: true,
+                sorter: (a, b) => {          // Fonction de tri personnalisée
+                    const getRank = (value) => {
+                        if (value === "1 réaction") return 1;
+                        if (value === "1 action bonus") return 2;
+                        if (value === "1 action") return 3;
+                        if (value === "1 action ou 8 heures") return 4;
+                        if (value === "1 minute") return 5;
+                        if (/\d+\s?minutes$/.test(value)) return 6;
+                        if (value === "1 heure") return 7;
+                        if (/\d+\s?heures$/.test(value)) return 8;
+                        return 9; // Valeur par défaut pour les autres
+                    };
+
+                    const extractNumber = (value) => {
+                        const match = value.match(/(\d+\.\d+|\d+)\s?(minutes|heures)?/);  // Capture le nombre (entier ou flottant), puis "m" ou "km"
+                        return match ? parseFloat(match[1]) : 0;   // Retourne le nombre (en tant que flottant)
+                    };
+
+                    const rankA = getRank(a);
+                    const rankB = getRank(b);
+
+                    if (rankA == rankB){
+                        if (rankA == 5)
+                        {
+                            if (extractNumber(a) - extractNumber(b) > 0)
+                                {
+                                    return 1;
+                                }
+                                else
+                                {
+                                    return -1;
+                                }
+                        }
+                        else {
+                            if (rankA == 7) {
+                                if (extractNumber(a) - extractNumber(b) > 0)
+                                    {
+                                        return 1;
+                                    }
+                                    else
+                                    {
+                                        return -1;
+                                    }
+                            }
+                            else
+                            {
+                                return 0;
+                            }
+                        }
+                    }
+                    else {
+                        return rankA-rankB;
+                    }
+                }
+            }, {
+                field: 'range',
+                visible: true,                // Rendre cette colonne visible
+                sortable: true,
+                sorter: (a, b) => {          // Fonction de tri personnalisée pour la colonne "range"
+                    const getRank = (value) => {
+                        if (value === 'perso') return 0;
+                        if (/^perso\w*/.test(value)) return 1; // "perso" suivi de texte
+                        if (value === 'contact') return 2;
+                        if (value === 'champ de vision') return 3;
+                        if (/\d+\s?km$/.test(value)) return 5;   // Nombre suivi de "km"
+                        if (/\d+\s?m$/.test(value)) return 4;    // Nombre suivi de "m"
+                        if (value === 'illimitée') return 6;
+                        if (value === 'spécial') return 7;
+                        return 8;                           // Valeur par défaut pour les autres
+                    };
+
+                    const extractNumber = (value) => {
+                        const match = value.match(/(\d+\.\d+|\d+)\s?(m|km)?/);  // Capture le nombre (entier ou flottant), puis "m" ou "km"
+                        return match ? parseFloat(match[1]) : 0;   // Retourne le nombre (en tant que flottant)
+                    };
+
+                    const rankA = getRank(a);
+                    const rankB = getRank(b);
+
+                    if (rankA === rankB) {
+                        if (rankA === 1) {
+                            return a.localeCompare(b);
+                        } else {
+                            if (rankA === 3)
+                            {
+                                if (extractNumber(a) - extractNumber(b) > 0)
+                                {
+                                    return 1;
+                                }
+                                else
+                                {
+                                    return -1;
+                                }
+                            }
+                            else
+                            {
+                                if (rankA === 4)
+                                {
+                                    if (extractNumber(a) - extractNumber(b) > 0)
+                                        {
+                                            return 1;
+                                        }
+                                        else
+                                        {
+                                            return -1;
+                                        }
+                                }
+                                else
+                                {
+                                    return 0;  // Si les rangs sont égaux, on ne change rien (car ils sont déjà égaux)
+                                }
+                            }
+                        }
+                    } else {
+                        return rankA - rankB;
+                    }
+                }
+            }, {
+                field: 'components',
+                visible: true,                 // Rendre cette colonne visible
+                sortable: true,
+                sorter: (a, b) => {
+                    const getRank = (value) => {
+                        if (value == "V") return 1;
+                        if (value == "S") return 2;
+                        if (value == "M") return 3;
+                        if (value == "V,S") return 4;
+                        if (value == "V,M") return 5;
+                        if (value == "S,M") return 6;
+                        if (value == "V,S,M") return 7;
+                        return 8;
+                    }
+                    return getRank(a)-getRank(b);
+                }
+            }, {
+                field: 'concentration',
+                visible: false,               // Masquer cette colonne par défaut
+                sortable: true,
+                sorter: (a, b) => {
+                    const getRank = (value) => {
+                        if (value == "Oui") return 1;
+                        if (value == "Non") return 2;
+                        return 3;
+                    }
+                    return getRank(a)-getRank(b);
+                }
+            }, {
+                field: 'rituel',
+                visible: false,                // Masquer cette colonne par défaut
+                sortable: true,
+                sorter: (a, b) => {
+                    const getRank = (value) => {
+                        if (value == "Oui") return 1;
+                        if (value == "Non") return 2;
+                        return 3;
+                    }
+                    return getRank(a)-getRank(b);
+                }
+            }, {
+                field: 'description',
+                visible: false                // Masquer cette colonne par défaut
+            }, {
+                field: 'page',                // Colonne "Page" (cachée)
+                visible: false,               // Toujours masquée
+                switchable: false,            // Ne pas jamais être affichée
+                title: 'Page'
+            }],
+            showColumns: true,                // Afficher le bouton pour sélectionner les colonnes
+            showColumnsToggleAll: true,       // Afficher le bouton pour sélectionner/désélectionner toutes les colonnes sauf "Page"
+            checkboxHeader: true,             // Ajouter la case à cocher "Sélectionner tout"
+            clickToSelect: false,             // Ne pas sélectionner les lignes en cliquant sur une cellule
+            locale: 'fr-FR',                  // Permet d'avoir les interface de bootstrap table en français
+            loadingFontSize: true,            // Permet d'avoir un écran de chargement (non utilisée)
+            onCheckAll: (rows) => {           // Lorsque on active le bouton qui permet de checker la page entière alors aplique la fonction
+                rows.forEach(row => {         // Boucle pour prendre toute les lignes de la page
+                    if (!selectedRows.includes(row.id)) { //Si l'ID n'est pas déjà dans la liste slectedRows
+                        selectedRows.push(row.id); // Alros ajout l'ID de la ligne sélectionnée
+                    }
+                });
+            },
+            onUncheckAll: () => { //Fonction lorsque on décheck le bouton check all du tableaux
+                // Récupérer toutes les lignes actuellement affichées dans le tableau
+                const visibleRows = $('#table_bootstrap').bootstrapTable('getData', { useCurrentPage: true });
+                                        
+                visibleRows.forEach(row => {
+                    // Retirer uniquement les IDs des lignes affichées de la liste selectedRows
+                    selectedRows = selectedRows.filter(id => id !== row.id);
+                });
+            },
+            onCheck: (row) => { //Lors d'un check d'une ligne
+                selectedRows.push(row.id); // Ajouter l'ID de la ligne sélectionnée
+            },
+            onUncheck: (row) => { //Lors d'un décheck d'une ligne
+                selectedRows = selectedRows.filter(id => id !== row.id); // Retirer l'ID de la ligne décochée
+            }
+        });
+        $('#table_bootstrap').addClass('initialized'); // Pour initialiser le tableaux
+    }
+
+    const url = "spells.html/" + classe; //Construction de l'url
+    const response = await fetch(url); //On envoie la réponse au server
+    const donneesCompletes = await response.json(); //On déchiffre le paquet envoyer en un fichier json
+
+    // Transformation des données pour inclure uniquement la colonne "Page" liée à la classe donnée
+    const donneesFiltrees = donneesCompletes.map((sort, index) => ({
+        id: index,                                          // Utiliser l'index comme ID unique
+        name: sort.name,                                    //Nom du sort
+        level: sort.level,                                  //Level du sort
+        school: sort.school,                                //Ecole du sort
+        casting_time: sort.casting_time,                    //Temps pour lancer le sort
+        range: sort.range,                                  //Portée du sort
+        components: sort.components,                        //Composant du sort (matériel, visuel ou/et somatique)
+        concentration: sort.concentration ? "Oui" : "Non",  //Suivant la valeur true/false affiche Oui ou Non pour la concentration
+        rituel: sort.rituel ? "Oui" : "Non",                //Suivant la valeur true/false affiche Oui ou Non pour le rituel
+        description: sort.description,                      //Description du sort
+        page: sort[classe]?.[1]?.join("-") || "-"           // Récupère les niveaux pour la classe ou affiche "-" si vide (jamais affiché)
+    }));
+
+    $('#table_bootstrap').bootstrapTable('load', donneesFiltrees); //Permet d'afficher les lignes de la liste donnesFiltrées
+}
+
+//Fonction qui permet de s'avoir qu'elle page est sélectionner
+function getSelectedPages() {
+    // Récupère toutes les lignes de la table
+    const allRows = $('#table_bootstrap').bootstrapTable('getData');
+    
+    // Crée une nouvelle liste avec les lignes correspondant aux indices de selectedRows
+    const selectedData = selectedRows.map(id => allRows.find(row => row.id === id));
+    const pages = selectedData
+        .map(row => row.page) // Récupère la valeur de la colonne "Page"
+        .join("-"); // Concatène les pages avec un tiret
+
+    return pages ? `-${pages}` : ""; // Ajoute un tiret au début uniquement s'il y a des données
+}
+
+//Function qui permet de checker tous les sorts de toute les lignes
+function checkAllRows() {
+    // Récupérer toutes les données du tableau
+    const allRows = $('#table_bootstrap').bootstrapTable('getData');
+    
+    // Ajouter tous les IDs à la liste `selectedRows` (éviter les doublons)
+    selectedRows = allRows.map(row => row.id);
+
+    // Activer toutes les cases cochées directement dans les données du tableau
+    allRows.forEach(row => {
+        row.state = true; // Définit l'état de chaque ligne à "coché"
     });
+
+    // Recharger les données avec les cases cochées
+    $('#table_bootstrap').bootstrapTable('load', allRows);
 }
 
-//Fonction qui permet de cocher ou décocher toute les case
-function check_all (){
-    const check_box = document.getElementById("check_all").checked; //Constante bool pour voir sur check_all est checher ou pas
-    var index = 0;
+//Fonction qui permet de déchecker toute les lignes du tableaux
+function uncheckAllRows() {
+    // Réinitialiser la liste des lignes sélectionnées
+    selectedRows = [];
 
-    const display_element_array = Array.from(document.getElementsByName("check_sort")); //Liste qui a tous les éléments de check sort
+    // Récupérer toutes les données du tableau
+    const allRows = $('#table_bootstrap').bootstrapTable('getData');
 
-    if (check_box){ //Si la box check_all est checker alors
-        display_element_array.forEach(element =>{ //Pour chaque élément
-            index++;
-            document.getElementById("check_"+index).checked = true; // On met la valeur checked
-        })
-    }
-    else{ //Sinon
-        display_element_array.forEach(element =>{
-            index++;
-            document.getElementById("check_"+index).checked = false; //On enlève pour tous la valeur checker
-        })
-    }
-}
+    // Mettre à jour toutes les lignes pour décocher les cases
+    allRows.forEach(row => {
+        row.state = false; // Définit l'état de chaque ligne à "non coché"
+    });
 
-//Fonction qui permet de triée les éléments selon la demande de l'utilisateur
-function trie(type){
-    document.getElementById("type_trie").value = type; //Modifie le type de trie voulue
-    sort_tableaux(); //Appelle la fonction qui permet de trier
-}
-
-//Fonction qui permet de supprimer toute les ligne du tableaux de sort sauf la 1er
-function supprimer_liste_sort(){ 
-    const table = document.getElementById("tableau_sort"); //Récupère le tableau
-    const longeur_table = table.rows.length; //Récupère le nombre de ligne de se tableau
-
-    for (let ligne = 1; ligne < longeur_table; ligne++){ //Boucle pour supprimer chaque ligne de se tableaux
-        table.deleteRow(1); //Suprime la 2e ligne (soit la 1er car commence à partir de 0)
-    }
-}
-
-//Fonction utiliser pour savoir si un sort est un rituel/concentration ou pas
-function type_true_false(reponse){
-    if (reponse){ //la réponse est en boolléen si oui
-        return "Oui" //Renvoie oui
-    }
-    else {
-        return "" //Sinon renvoie une chaine de caractère vide
-    }
-}
-
-//Fonction qui permet de rendre une liste en texte pour savoir où sont les pages
-function page(reponse){
-    //Déclaration de variable
-    var liste_numeros = "";
-    
-    reponse.forEach(numero =>{ //Pour chaque élément de la liste
-        liste_numeros = liste_numeros + "-" + numero; //rajoute l'autre numero
-    })
-    return liste_numeros; //Retourne la liste complet
-}
-
-//Fonction qui permet de savoir qu'elle pour quelle trie on est
-function page_trie(sort, classe){
-    if (classe=="multiclasse"){ //Si la classe du sort selectionner est multiclasse
-        return page(sort.multiclasse[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="barde"){ //Si la classe du sort selectionner est
-        return page(sort.barde[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="clerc"){ //Si la classe du sort selectionner est clerc
-        return page(sort.clerc[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="druide"){ //Si la classe du sort selectionner est druide
-        return page(sort.druide[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="ensorceleur"){ //Si la classe du sort selectionner est ensorceleur
-        return page(sort.ensorceleur[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="magicien"){ //Si la classe du sort selectionner est magicien
-        return page(sort.magicien[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="occultiste"){ //Si la classe du sort selectionner est occultiste
-        return page(sort.occultiste[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="paladin"){ //Si la classe du sort selectionner est paladin
-        return page(sort.paladin[1]); //retourne en appellant la fonction page
-    }
-    else if (classe=="rodeur"){ //Si la classe du sort selectionner est rodeur
-        return page(sort.rodeur[1]); //retourne en appellant la fonction page
-    }
-    
-}
-
-//Fonction qui permet de trier la liste en entrée selon le type (ex: par le nom, niveaux..)
-function trie_liste_sort(type, liste){ 
-    if (type == "nom") { //Si le type selectionner est nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.name < b.name) return -1; //Si b est avant a alors b passe devant
-            if (a.nom > b.nom) return 1; //Si a est avant b alors a passe devant
-            return 0; //Sinon rien ne se passe
-        })
-    }
-    else if (type == "niveau"){ //Si le type selectionner est niveaux
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a, b) => a.level - b.level); //reprend les sorts et les trie selon leur niveaux
-    }
-    else if (type == "ecole"){ 
-        liste = trie_liste_sort("nom", liste);
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.school < b.school) return -1; //Si b est avant a alors b passe devant
-            if (a.school > b.school) return 1; //Si a est avant b alors a passe devant
-            return 0;
-        })
-    }
-    else if (type == "incantation"){ //Si le type selectionner est  incantation
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.casting_time < b.casting_time) return -1; //Si b est avant a alors b passe devant
-            if (a.casting_time > b.casting_time) return 1; //Si a est avant b alors a passe devant
-            return 0;
-        })
-    }
-    else if (type == "portee"){ //Si le type selectionner est portée
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.range < b.range) return -1; //Si b est avant a alors b passe devant
-            if (a.range > b.range) return 1; //Si a est avant b alors a passe devant
-            return 0;
-        })
-    }
-    else if (type == "vsm"){ //Si le type selectionner est les composent
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.components < b.components) return -1; //Si b est avant a alors b passe devant
-            if (a.components > b.components) return 1; //Si a est avant b alors a passe devant
-            return 0;
-        })
-    }
-    else if (type == "concentration"){ //Si le type selectionner est concentration
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.concentration < b.concentration) return 1; //Si a est avant b alors a passe devant
-            if (a.concentration > b.concentration) return -1; //Si b est avant a alors b passe devant
-            return 0;
-        })
-    }
-    else if (type == "rituel"){ //Si le type selectionner est rituel
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.rituel < b.rituel) return 1; //Si a est avant b alors a passe devant
-            if (a.rituel > b.rituel) return -1; //Si b est avant a alors b passe devant
-            return 0;
-        })
-    }
-    else if (type == "description"){ //Si le type selectionner est description
-        liste = trie_liste_sort("nom", liste); //Permet de d'abord triés par nom
-        liste.sort((a,b)=> { //Boucle qui reprend tous les sort
-            if (a.description < b.description) return -1; //Si b est avant a alors b passe devant
-            if (a.description > b.description) return 1; //Si a est avant b alors a passe devant
-            return 0;
-        })
-    }
-    return liste;
-}
-
-//Permet de voir combien on a de niveaux
-function niveaux(){
-    valeur_min = document.getElementById("niveaux_min").value;
-    valeur_max = document.getElementById("niveaux_max").value;
-    if (valeur_min >= valeur_max) {
-        valeur_max = document.getElementById("niveaux_max").value = valeur_min;
-    }
-}
-
-//Fonction qui permet de remplir le tableaux selon la classe de sort séléctionner ainsi que le trie que l'on demande
-function sort_tableaux(){
-    let liste_sort = sort_json;
-
-    const table = document.getElementById("tableau_sort"); //Récupère le tableux
-    var index = 0; //Permet de garder le nombre de ligne que l'on a
-
-    const type_trie = document.getElementById("type_trie").value;
-    supprimer_liste_sort();//Permet de supprimer les sort restants
-    niveaux(); //Permet de rectifier les niveaux au besoins
-
-    liste_sort = trie_liste_sort(type_trie, liste_sort);
-    liste_sort.forEach(sort => { //Boucle pour remplir le tableux
-        const niveau = sort.level;
-        if (document.getElementById('niveaux_min').value <= niveau && document.getElementById('niveaux_max').value >= niveau){
-            index++; //Incrementation de index
-            var newRow = table.insertRow(index) //Variable de création d'une ligne vide
-    
-            var contenue_ligne = '<tr>' //Contenue de la ligne
-                    + '<th scope="row">'
-                    +   '<div class="form-check">'
-                    +   '<input class="form-check-input" name="check_sort" type="checkbox" value="" id="check_'+ index +'">'
-                    +   '<label class="form-check-label" for="flexCheckDefault">'
-                    +   '</label>'
-                    + '</div></th>'
-                    + '<td>'+ sort.name +'</td>'
-                    + '<td>'+ niveau +'</td>'
-                    + '<td class="ecole">'+ sort.school +'</td>'
-                    + '<td class="incantation">'+ sort.casting_time +'</td>'
-                    + '<td class="portee">'+ sort.range+'</td>'
-                    + '<td class="vsm">'+ sort.components +'</td>'
-                    + '<td class="concentration">'+ type_true_false(sort.concentration) +'</td>'
-                    + '<td class="rituel">'+ type_true_false(sort.rituel) +'</td>'
-                    + '<td class="description">'+ sort.description +'</td>'
-                    + '<td class="page" id="page_'+index+'">'+ page_trie(sort, document.getElementById("type_classe").value) +'</td>'
-                    + '</tr>';
-            newRow.innerHTML = contenue_ligne; //Ajoute se contenue dans la ligne vide 
-        }
-    })
-
-    //Permet de mettre à jour les critères de selection choisie par l'utilisateur
-    let liste_type_display = ['ecole', 'incantation', 'portee', 'vsm', 'concentration','rituel', 'description'];
-    liste_type_display.forEach(type_element => {
-        display_tableaux(type_element);
-    })
-
-    document.getElementById("check_all").checked = false; //Permet désactiver le check global
-}
-
-//Permet de renvoyer toute les pages où les sort sont checher
-function liste_check_sort(){
-    var index = 0;
-    const display_element_array = Array.from(document.getElementsByName("check_sort")); //Liste qui a tous les éléments de check sort
-    let liste_page_checker = ""
-
-    display_element_array.forEach(element =>{ //Pour chaque élément
-        index++;
-        if (element.checked) {
-            liste_page_checker = liste_page_checker + document.getElementById('page_'+index).textContent;
-        }
-    })
-    return liste_page_checker
-}
-
-//Fonction pour récuperer la liste de sort
-async function tableau_selector(classe) { 
-    supprimer_liste_sort(); //Supprime les sorts présent
-    var url="spells.html/"+classe; //Construction de l'url pour demander le fichier json
-
-    const response = await fetch(url); //Envoie de la requête et attend la réponse
-    var liste_sort = await response.json(); //Extrait le json de la réponse
-    
-    sort_json = liste_sort;
-    document.getElementById("type_classe").value = classe
-    sort_tableaux();
+    // Recharger les données dans le tableau avec les lignes décochées
+    $('#table_bootstrap').bootstrapTable('load', allRows);
 }
 
 //Fonction pour générer le pdf
 async function generer_pdf() {
-    const page = liste_check_sort();
+    const page = getSelectedPages(); //Permet de récupré le txt de toute les sort sélectionner
     const div_aler = document.getElementById("aucune_selection");
 
-    if (page != "") {
-        var url = "pdf.html/" + document.getElementById("type_classe").value + "/" + page;
+    if (page != "") { //Si il y a des sorts sélectionner
+        var url = "pdf.html/" + classe_selectionner + "/" + page; //Construction du l'url
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
+        try { //Esseye de faire la requete pour la constrcution du pdf
+            document.getElementById("spinner_pdf").style.display = "block"; //Permet d'afficher le loader
+
+            const response = await fetch(url); //Envoie de la requete
+            if (!response.ok) { //Si la requête n'est pas of
                 throw new Error('Network response was not ok');
             }
+
+            //Téléchargement et envoie du fichier pdf
             const blob = await response.blob();
             const urlBlob = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -289,17 +342,45 @@ async function generer_pdf() {
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(urlBlob);
+
+            document.getElementById("spinner_pdf").style.display = "none"; //Enlève le loader
+
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
         }
     }
     else {
-        alert("Tu n'as pas sélectionner de sort. Je ne peux pas créer tes cartes");
+        window.showToast(); //Affiche le toast si il n'y a pas de sort sélectionner
     }
 }
 
+//Fonction pour le loader
+document.addEventListener('DOMContentLoaded', function () { //Déclare la fonction après que tout le contenue soit chargé (mais avant les images)
+    // Fonction pour afficher le toast
+    function showToast() {
+        const toastElement = document.getElementById('liveToast');
+        if (toastElement) {
+            const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
+            toast.show();  // Affiche le toast
+        } else {
+            console.error('Toast element not found!');
+        }
+    }
 
-//Au chargement de la page permet de mettre tout les sorts
+    // Assurez-vous que la fonction est accessible globalement
+    window.showToast = showToast;
+
+    // Écouteur d'événement pour le bouton
+    const toastTrigger = document.getElementById('liveToastBtn');
+    if (toastTrigger) {
+        toastTrigger.addEventListener('click', showToast);
+    } else {
+        console.error('Toast button not found!');
+    }
+});
+
+
+//Après que toute la page soit loader appelle la fonction pour construire le tableaux
 window.onload = function(){
     tableau_selector('multiclasse');
 }

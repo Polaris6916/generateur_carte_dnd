@@ -90,55 +90,69 @@ def generer_pdf(type, pages, id):
 
     # Gérer les cartes restantes après le dernier groupe complet de 9 pages
     remaining_pages = len(pages_a_extraire) % 9
-    if remaining_pages % 3 == 1 :
+    if remaining_pages == 0 :
         c.showPage()
-        for j in range(remaining_pages):
-            if remaining_pages - j >= 3 :
-                img_width = first_pix.width / zoom
-                img_height = first_pix.height / zoom
-
-                x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
-                y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
-
-                # Dessiner la première image centrée pour le dernier groupe
-                c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
-            
-            elif remaining_pages - j > 0:
-                img_width = first_pix.width / zoom
-                img_height = first_pix.height / zoom
-
-                x_first = ((j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2)
-                y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
-
-                x_inverted = width - (x + img_width)
-
-                # Dessiner la première image centrée pour le dernier groupe
-                c.drawImage(first_image_path, x_inverted, y_first, width=img_width, height=img_height)
-
-    elif remaining_pages % 3 == 2 :
-        c.showPage()
-        for j in range(remaining_pages+1):
-            if remaining_pages - j >= 3 or remaining_pages -j <= 1:
-                img_width = first_pix.width / zoom
-                img_height = first_pix.height / zoom
-
-                x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
-                y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
-
-                # Dessiner la première image centrée pour le dernier groupe
-                c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
-
-        c.showPage()  # Finir le groupe incomplet de 9 pages
-
-    elif remaining_pages % 3 == 0 :
-        c.showPage()
-        for j in range(remaining_pages):
+        for j in range(9):
+            # Calculer la position de l'image sur la feuille
             img_width = first_pix.width / zoom
             img_height = first_pix.height / zoom
+    
             x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
             y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
-            
-            c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
+
+            # Dessiner l'image sur le canevas sans redimensionnement
+            c.drawImage(first_image_path, x_first, y_first, width=first_pix.width / zoom, height=first_pix.height / zoom)
+
+    else :
+        if remaining_pages % 3 == 1 :
+            c.showPage()
+            for j in range(remaining_pages):
+                if remaining_pages - j >= 3 :
+                    img_width = first_pix.width / zoom
+                    img_height = first_pix.height / zoom
+
+                    x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
+                    y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
+
+                    # Dessiner la première image centrée pour le dernier groupe
+                    c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
+
+                elif remaining_pages - j > 0:
+                    img_width = first_pix.width / zoom
+                    img_height = first_pix.height / zoom
+
+                    x_first = ((j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2)
+                    y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
+
+                    x_inverted = width - (x + img_width)
+
+                    # Dessiner la première image centrée pour le dernier groupe
+                    c.drawImage(first_image_path, x_inverted, y_first, width=img_width, height=img_height)
+
+        elif remaining_pages % 3 == 2 :
+            c.showPage()
+            for j in range(remaining_pages+1):
+                if remaining_pages - j >= 3 or remaining_pages -j <= 1:
+                    img_width = first_pix.width / zoom
+                    img_height = first_pix.height / zoom
+
+                    x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
+                    y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
+
+                    # Dessiner la première image centrée pour le dernier groupe
+                    c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
+
+            c.showPage()  # Finir le groupe incomplet de 9 pages
+
+        else :
+            c.showPage()
+            for j in range(remaining_pages):
+                img_width = first_pix.width / zoom
+                img_height = first_pix.height / zoom
+                x_first = (j % 3) * (page_width + marge_x) + marge_x + (page_width - img_width) / 2
+                y_first = height - ((j // 3 % 3 + 1) * (page_height + marge_y)) + (page_height - img_height) / 2
+                print("coucou")
+                c.drawImage(first_image_path, x_first, y_first, width=img_width, height=img_height)
 
     # Sauvegarder le fichier PDF final
     c.save()
