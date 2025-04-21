@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+.gitignore
+.git
+*.log
+*.db
+*.sqlite3
+scrapping/
+README.md
+LICENSE

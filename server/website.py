@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, send_file, after_this_request
 from werkzeug.utils import send_from_directory
 import os
 from dotenv import load_dotenv
-from importer_exporter_sort import selection_sort, generer_pdf, recuper_chemin_absolue
+from .importer_exporter_sort import selection_sort, generer_pdf, recuper_chemin_absolue
 from datetime import datetime
 import threading
 
